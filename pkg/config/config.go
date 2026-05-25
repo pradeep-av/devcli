@@ -9,11 +9,10 @@ import (
 
 // Profile represents an API target environment.
 type Profile struct {
-	URL              string            `yaml:"url"`
-	Token            string            `yaml:"token"`
-	TokenScript      string            `yaml:"token_script"`
-	TokenScriptCamel string            `yaml:"tokenScript"`
-	Headers          map[string]string `yaml:"headers"`
+	URL         string            `yaml:"url"`
+	Token       string            `yaml:"token"`
+	TokenScript string            `yaml:"token_script"`
+	Headers     map[string]string `yaml:"headers"`
 }
 
 // ArgConfig defines rules for a command argument/flag.
@@ -65,7 +64,6 @@ func LoadConfig() (*Config, error) {
 		if cfg.Commands == nil {
 			cfg.Commands = make(map[string]CommandConfig)
 		}
-		alignAliases(cfg)
 		return cfg, nil
 	}
 
@@ -90,7 +88,6 @@ func LoadConfig() (*Config, error) {
 	if cfg.Commands == nil {
 		cfg.Commands = make(map[string]CommandConfig)
 	}
-	alignAliases(cfg)
 	return cfg, nil
 }
 
@@ -115,16 +112,4 @@ func SaveConfig(cfg *Config) error {
 	}
 
 	return os.WriteFile(cfg.FilePath, data, 0600)
-}
-
-func alignAliases(cfg *Config) {
-	for name, p := range cfg.Profiles {
-		if p.TokenScript == "" && p.TokenScriptCamel != "" {
-			p.TokenScript = p.TokenScriptCamel
-		}
-		if p.TokenScriptCamel == "" && p.TokenScript != "" {
-			p.TokenScriptCamel = p.TokenScript
-		}
-		cfg.Profiles[name] = p
-	}
 }
