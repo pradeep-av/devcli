@@ -22,8 +22,8 @@ RUN go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 # --- Final Stage ---
 FROM alpine:latest
 
-# Install runtime utilities: curl, jq, and root CA certificates for HTTPS requests
-RUN apk add --no-cache curl jq ca-certificates
+# Install runtime utilities: bash, curl, jq, and root CA certificates for HTTPS requests
+RUN apk add --no-cache bash curl jq ca-certificates
 
 # Copy compiled binaries from builder stage
 COPY --from=builder /app/devcli /usr/local/bin/devcli
