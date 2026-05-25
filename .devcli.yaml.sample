@@ -1,0 +1,38 @@
+current_profile: development
+profiles:
+    development:
+        url: http://localhost:8080
+        token: dev-token-xyz
+        headers: {}
+
+commands:
+  get-user:
+    path: "/users/{id}"
+    method: "GET"
+    description: "Get user details by ID"
+    query:
+      fields: "{fields}"
+      v: "2"
+    headers:
+      X-Custom-Request: "yes"
+
+  create-user:
+    path: "/users"
+    method: "POST"
+    description: "Create a new user"
+    body: |
+      {
+        "name": "{name}",
+        "email": "{email}",
+        "role": "{role}"
+      }
+    args:
+      name:
+        required: true
+        description: "The name of the user"
+      email:
+        required: true
+        description: "The email address of the user"
+      role:
+        default: "developer"
+        description: "The user role (default: developer)"
