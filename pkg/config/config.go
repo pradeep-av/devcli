@@ -9,9 +9,10 @@ import (
 
 // Profile represents an API target environment.
 type Profile struct {
-	URL     string            `yaml:"url"`
-	Token   string            `yaml:"token"`
-	Headers map[string]string `yaml:"headers"`
+	URL         string            `yaml:"url"`
+	Token       string            `yaml:"token"`
+	TokenScript string            `yaml:"token_script"`
+	Headers     map[string]string `yaml:"headers"`
 }
 
 // ArgConfig defines rules for a command argument/flag.

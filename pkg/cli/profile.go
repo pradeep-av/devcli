@@ -27,6 +27,7 @@ func newProfileCmd() *cobra.Command {
 func newProfileSetCmd() *cobra.Command {
 	var urlFlag string
 	var tokenFlag string
+	var tokenScriptFlag string
 	var headersFlag []string
 
 	cmd := &cobra.Command{
@@ -55,6 +56,9 @@ func newProfileSetCmd() *cobra.Command {
 			}
 			if tokenFlag != "" {
 				p.Token = tokenFlag
+			}
+			if tokenScriptFlag != "" {
+				p.TokenScript = tokenScriptFlag
 			}
 
 			// Parse custom headers specified via CLI flags
@@ -93,6 +97,7 @@ func newProfileSetCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&urlFlag, "url", "", "API server base URL (e.g. http://localhost:8080)")
 	cmd.Flags().StringVar(&tokenFlag, "token", "", "API Authorization token")
+	cmd.Flags().StringVar(&tokenScriptFlag, "token-script", "", "Shell command to run to generate the token dynamically")
 	cmd.Flags().StringSliceVar(&headersFlag, "header", nil, "Custom headers in format 'Key: Value' (can be specified multiple times)")
 
 	return cmd
@@ -128,6 +133,9 @@ func newProfileListCmd() *cobra.Command {
 				fmt.Printf(" URL: %s", p.URL)
 				if p.Token != "" {
 					fmt.Printf(" | Token: ********")
+				}
+				if p.TokenScript != "" {
+					fmt.Printf(" | TokenScript: %s", p.TokenScript)
 				}
 				if len(p.Headers) > 0 {
 					var hKeys []string

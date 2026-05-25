@@ -1,9 +1,12 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 
@@ -106,9 +109,23 @@ func createDynamicCommand(name string, cmdConf config.CommandConfig, cfg *config
 			for k, v := range profile.Headers {
 				resolvedHeaders[k] = v
 			}
-			// Apply profile auth token
-			if profile.Token != "" {
-				resolvedHeaders["Authorization"] = "Bearer " + profile.Token
+			// Apply profile auth token, or override with API_TOKEN environment variable if set
+			token := os.Getenv("API_TOKEN")
+			if token == "" && profile.TokenScript != "" {
+				if Verbose {
+					fmt.Printf("Executing token script: %s\n", profile.TokenScript)
+				}
+				var err error
+				token, err = executeTokenScript(profile.TokenScript)
+				if err != nil {
+					return fmt.Errorf("failed to retrieve token via token-script: %w", err)
+				}
+			}
+			if token == "" {
+				token = profile.Token
+			}
+			if token != "" {
+				resolvedHeaders["Authorization"] = "Bearer " + token
 			}
 			// Apply command-specific headers
 			for k, v := range cmdConf.Headers {
@@ -277,4 +294,17 @@ func cleanJSON(val any) (any, bool) {
 	default:
 		return val, true
 	}
+}
+
+// executeTokenScript runs a shell script and returns its trimmed stdout.
+func executeTokenScript(script string) (string, error) {
+	cmd := exec.Command("sh", "-c", script)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		return "", fmt.Errorf("token script failed: %v, stderr: %s", err, stderr.String())
+	}
+	return strings.TrimSpace(stdout.String()), nil
 }

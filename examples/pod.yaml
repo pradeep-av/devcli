@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devcli-config
+  namespace: default
+data:
+  .devcli.yaml: |
+    current_profile: development
+    profiles:
+      development:
+        url: "http://localhost:8080"
+        token: "dev-token-xyz"
+    commands:
+      get-user:
+        path: "/users/{id}"
+        method: "GET"
+        description: "Get user details by ID"
+        query:
+          fields: "{fields}"
+      create-user:
+        path: "/users"
+        method: "POST"
+        description: "Create a new user"
+        body: |
+          {
+            "name": "{name}",
+            "email": "{email}",
+            "role": "{role}"
+          }
+        args:
+          name:
+            required: true
+          email:
+            required: true
+          role:
+            default: "developer"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: devcli-dev-pod
+  namespace: default
+spec:
+  containers:
+    - name: devcli
+      image: devcli:latest
+      # Keep the pod alive indefinitely so developers can exec into it and run devcli
+      command: ["sleep", "infinity"]
+      # Useful for local testing with Minikube / Kind
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: config-volume
+          mountPath: /workspace/.devcli.yaml
+          subPath: .devcli.yaml
+  volumes:
+    - name: config-volume
+      configMap:
+        name: devcli-config
