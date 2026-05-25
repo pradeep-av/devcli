@@ -59,6 +59,7 @@ func newProfileSetCmd() *cobra.Command {
 			}
 			if tokenScriptFlag != "" {
 				p.TokenScript = tokenScriptFlag
+				p.TokenScriptCamel = tokenScriptFlag
 			}
 
 			// Parse custom headers specified via CLI flags
